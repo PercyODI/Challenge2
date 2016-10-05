@@ -27,9 +27,10 @@ namespace Challenge2.Models
         // on configuring and using a Code First model, see http://go.microsoft.com/fwlink/?LinkId=390109.
 
         // public virtual DbSet<MyEntity> MyEntities { get; set; }
-        public virtual DbSet<Player> Players { get; set; }
-        public virtual DbSet<Stadium> Stadiums { get; set; }
         public virtual DbSet<Team> Teams { get; set; }
+        public virtual DbSet<Stadium> Stadiums { get; set; }
+        public virtual DbSet<Player> Players { get; set; }
+        
     }
 
     //public class MyEntity

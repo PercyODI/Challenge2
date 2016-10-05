@@ -34,7 +34,7 @@ namespace Challenge2.Controllers
                 }
                 catch
                 {
-                    return Json("false");
+                    return HttpNotFound();
                 }
                 //return RedirectToAction("Index");
             }
@@ -52,11 +52,11 @@ namespace Challenge2.Controllers
                 db.Entry(team).State = EntityState.Modified;
                 //db.Entry(team.HomeStadium).State = EntityState.Modified;
                 db.SaveChanges();
-                return Json(team);
+                return RedirectToAction("Index");
             }
             else
             {
-                return Json("false");
+                return HttpNotFound();
             }
         }
 
@@ -65,9 +65,14 @@ namespace Challenge2.Controllers
         [HttpDelete]
         public ActionResult DeleteTeams()
         {
-            db.Teams.RemoveRange(db.Teams);
+            //db.Teams.RemoveRange(db.Teams);
+            foreach(Team team in db.Teams)
+            {
+                db.Stadiums.Remove(team.Stadium);
+                db.Teams.Remove(team);
+            }
             db.SaveChanges();
-            return RedirectToRoute("Index");
+            return RedirectToAction("Index"); 
         }
 
         // GET: Teams/{TeamName}
@@ -80,7 +85,61 @@ namespace Challenge2.Controllers
                 return Json(team, JsonRequestBehavior.AllowGet);
             } else
             {
-                return Json("Could not find team by the name of " + teamName);
+                return HttpNotFound();
+            }
+        }
+
+        // GET: Teams/{TeamName}/Players
+        [Route("Teams/{teamName}/Players")]
+        public ActionResult getTeamPlayers(string teamName)
+        {
+            Team team = db.Teams.Find(teamName);
+            if(team != null)
+            {
+                return Json(team.Players);
+            } else
+            {
+                return HttpNotFound();
+            }
+        }
+
+        // GET: Teams/{TeamName}/Stadium
+        [Route("Teams/{teamName}/Stadium")]
+        public ActionResult getTeamStadium(string teamName)
+        {
+            Team team = db.Teams.Find(teamName);
+            if (team != null)
+            {
+                return Json(team.Stadium);
+            }
+            else
+            {
+                return HttpNotFound();
+            }
+        }
+
+        // POST: Teams/{TeamName}/Players
+        [Route("Teams/{teamName}/Players")]
+        [HttpPost]
+        public ActionResult addPlayersToTeam(string teamName, Player playerToAdd)
+        {
+            Team team = db.Teams.Find(teamName);
+            if (team != null)
+            {
+                try
+                {
+                    team.Players.Add(playerToAdd);
+                    db.SaveChanges();
+                    return RedirectToAction("Index");
+                }
+                catch
+                {
+                    return HttpNotFound();
+                }
+            }
+            else
+            {
+                return HttpNotFound();
             }
         }
 
