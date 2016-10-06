@@ -16,7 +16,7 @@ namespace Challenge2.Models
         public decimal TicketPrice { get; set; }
 
        
-        public virtual Team Team { get; set; }
+        //public virtual Team Team { get; set; }
 
     }
 }

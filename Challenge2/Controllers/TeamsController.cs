@@ -7,13 +7,15 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using Challenge2.Models;
+using System.Data.Entity.Infrastructure;
 
 namespace Challenge2.Controllers
 {
     public class TeamsController : Controller
     {
         private Challenge2Context db = new Challenge2Context();
-
+        
+        
         // GET: Teams
         [Route("Teams", Name = "Index")]
         public ActionResult Index()
@@ -28,17 +30,11 @@ namespace Challenge2.Controllers
         {
             if (ModelState.IsValid)
             {
-                try {
-                    db.Teams.Add(team);
-                    db.SaveChanges();
-                }
-                catch
-                {
-                    return HttpNotFound();
-                }
+                db.Teams.Add(team);
+                db.SaveChanges();
                 //return RedirectToAction("Index");
             }
-            return Json(db.Teams.OrderBy(x => x.Name).ToList(), JsonRequestBehavior.AllowGet);
+            return RedirectToAction("Index");
 
         }
 
@@ -47,11 +43,21 @@ namespace Challenge2.Controllers
         [HttpPut]
         public ActionResult Update(Team team)
         {
-            if(ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 db.Entry(team).State = EntityState.Modified;
                 //db.Entry(team.HomeStadium).State = EntityState.Modified;
-                db.SaveChanges();
+                try {
+                    db.SaveChanges();
+                }
+                catch (DbUpdateConcurrencyException ex)
+                {
+                    return Json("'Return':false");
+                }
+                catch (DbUpdateException ex)
+                {
+                    return Json("'Return':false");
+                }
                 return RedirectToAction("Index");
             }
             else
@@ -65,14 +71,14 @@ namespace Challenge2.Controllers
         [HttpDelete]
         public ActionResult DeleteTeams()
         {
-            //db.Teams.RemoveRange(db.Teams);
-            foreach(Team team in db.Teams)
-            {
-                db.Stadiums.Remove(team.Stadium);
-                db.Teams.Remove(team);
-            }
+            db.Teams.RemoveRange(db.Teams);
+            //foreach (Team team in db.Teams)
+            //{
+            //    db.Stadiums.Remove(team.Stadium);
+            //    db.Teams.Remove(team);
+            //}
             db.SaveChanges();
-            return RedirectToAction("Index"); 
+            return Index();
         }
 
         // GET: Teams/{TeamName}
@@ -80,10 +86,11 @@ namespace Challenge2.Controllers
         public ActionResult GetTeam(string teamName)
         {
             Team team = db.Teams.Find(teamName);
-            if(team != null)
+            if (team != null)
             {
                 return Json(team, JsonRequestBehavior.AllowGet);
-            } else
+            }
+            else
             {
                 return HttpNotFound();
             }
@@ -94,10 +101,11 @@ namespace Challenge2.Controllers
         public ActionResult getTeamPlayers(string teamName)
         {
             Team team = db.Teams.Find(teamName);
-            if(team != null)
+            if (team != null)
             {
                 return Json(team.Players);
-            } else
+            }
+            else
             {
                 return HttpNotFound();
             }

@@ -21,6 +21,7 @@ namespace Challenge2.Models
         [Required]
         public virtual Stadium Stadium { get; set; }
 
-        public virtual ICollection<Player> Players { get; set; }
+        
+        public virtual List<Player> Players { get; set; }
     }
 }

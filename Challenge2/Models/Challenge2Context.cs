@@ -30,6 +30,8 @@ namespace Challenge2.Models
         public virtual DbSet<Team> Teams { get; set; }
         public virtual DbSet<Stadium> Stadiums { get; set; }
         public virtual DbSet<Player> Players { get; set; }
+
+
         
     }
 

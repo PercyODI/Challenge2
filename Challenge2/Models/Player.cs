@@ -10,13 +10,12 @@ namespace Challenge2.Models
     public class Player
     {
         [Key]
-        public string TeamName { get; set; }
+        public int Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public int Age { get; set; }
         public decimal Salary { get; set; }
 
-        [ForeignKey("TeamName")]
-        public Team Team { get; set; }
+        //public virtual Team Team { get; set; }
     }
 }
