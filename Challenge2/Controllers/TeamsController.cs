@@ -28,6 +28,7 @@ namespace Challenge2.Controllers
         [HttpPost]
         public ActionResult Create(Team team)
         {
+            db.Configuration.ProxyCreationEnabled = false;
             if (ModelState.IsValid)
             {
                 db.Teams.Add(team);
@@ -58,7 +59,7 @@ namespace Challenge2.Controllers
                 {
                     return Json("'Return':false");
                 }
-                return RedirectToAction("Index");
+                return Index();
             }
             else
             {
@@ -71,6 +72,8 @@ namespace Challenge2.Controllers
         [HttpDelete]
         public ActionResult DeleteTeams()
         {
+            db.Players.RemoveRange(db.Players);
+            db.Stadiums.RemoveRange(db.Stadiums);
             db.Teams.RemoveRange(db.Teams);
             //foreach (Team team in db.Teams)
             //{
@@ -103,7 +106,7 @@ namespace Challenge2.Controllers
             Team team = db.Teams.Find(teamName);
             if (team != null)
             {
-                return Json(team.Players);
+                return Json(team.Players, JsonRequestBehavior.AllowGet);
             }
             else
             {
@@ -118,7 +121,7 @@ namespace Challenge2.Controllers
             Team team = db.Teams.Find(teamName);
             if (team != null)
             {
-                return Json(team.Stadium);
+                return Json(team.Stadium, JsonRequestBehavior.AllowGet);
             }
             else
             {

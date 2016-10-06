@@ -17,11 +17,9 @@ namespace Challenge2.Models
         [Key]
         public string Name { get; set; }
         public string City { get; set; }
-
-        [Required]
+      
         public virtual Stadium Stadium { get; set; }
 
-        
-        public virtual List<Player> Players { get; set; }
+        public virtual ICollection<Player> Players { get; set; }
     }
 }
