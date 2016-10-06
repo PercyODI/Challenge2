@@ -14,8 +14,15 @@ namespace Challenge2.Controllers
     public class TeamsController : Controller
     {
         private Challenge2Context db = new Challenge2Context();
-        
-        
+
+        // Returns a default view page for testing application visibility
+        [Route("Teams/Default")]
+        [Route("")]
+        public ActionResult DefaultPage()
+        {
+            return new FilePathResult("~/Views/Default.html", "text/html");
+        }
+
         // GET: Teams
         [Route("Teams", Name = "Index")]
         public ActionResult Index()
@@ -33,9 +40,8 @@ namespace Challenge2.Controllers
             {
                 db.Teams.Add(team);
                 db.SaveChanges();
-                //return RedirectToAction("Index");
             }
-            return RedirectToAction("Index");
+            return Index();
 
         }
 
@@ -44,20 +50,22 @@ namespace Challenge2.Controllers
         [HttpPut]
         public ActionResult Update(Team team)
         {
+            // This function will only update teams, not
+            // the stadiums or players in a team.
             if (ModelState.IsValid)
             {
                 db.Entry(team).State = EntityState.Modified;
-                //db.Entry(team.HomeStadium).State = EntityState.Modified;
-                try {
+                try
+                {
                     db.SaveChanges();
                 }
-                catch (DbUpdateConcurrencyException ex)
+                catch (DbUpdateConcurrencyException ex) // Used for teams that aren't found
                 {
-                    return Json("'Return':false");
+                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest, ex.Message);
                 }
-                catch (DbUpdateException ex)
+                catch (DbUpdateException ex) // Used for any other databse update issue
                 {
-                    return Json("'Return':false");
+                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest, ex.Message);
                 }
                 return Index();
             }
@@ -72,14 +80,14 @@ namespace Challenge2.Controllers
         [HttpDelete]
         public ActionResult DeleteTeams()
         {
+            // Due to how the model is created in the Entity Framework,
+            // all dependent rows (Players and Stadiums) are deleted
+            // before the teams are deleted. This would be much more 
+            // involved if we had to delete specific items.
             db.Players.RemoveRange(db.Players);
             db.Stadiums.RemoveRange(db.Stadiums);
             db.Teams.RemoveRange(db.Teams);
-            //foreach (Team team in db.Teams)
-            //{
-            //    db.Stadiums.Remove(team.Stadium);
-            //    db.Teams.Remove(team);
-            //}
+
             db.SaveChanges();
             return Index();
         }
@@ -137,6 +145,7 @@ namespace Challenge2.Controllers
             Team team = db.Teams.Find(teamName);
             if (team != null)
             {
+
                 try
                 {
                     team.Players.Add(playerToAdd);
@@ -152,112 +161,6 @@ namespace Challenge2.Controllers
             {
                 return HttpNotFound();
             }
-        }
-
-        // Below are the methods from the scaffolding
-
-        // GET: Teams/Details/5
-        public ActionResult Details(string id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Team team = db.Teams.Find(id);
-            if (team == null)
-            {
-                return HttpNotFound();
-            }
-            return View(team);
-        }
-
-        // GET: Teams/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: Teams/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public ActionResult Create([Bind(Include = "Name,City")] Team team)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        db.Teams.Add(team);
-        //        db.SaveChanges();
-        //        return RedirectToAction("Index");
-        //    }
-        //    return View(team);
-        //}
-
-        // GET: Teams/Edit/5
-        public ActionResult Edit(string id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Team team = db.Teams.Find(id);
-            if (team == null)
-            {
-                return HttpNotFound();
-            }
-            return View(team);
-        }
-
-        // POST: Teams/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Name,City")] Team team)
-        {
-            if (ModelState.IsValid)
-            {
-                db.Entry(team).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
-            }
-            return View(team);
-        }
-
-        // GET: Teams/Delete/5
-        public ActionResult Delete(string id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Team team = db.Teams.Find(id);
-            if (team == null)
-            {
-                return HttpNotFound();
-            }
-            return View(team);
-        }
-
-        // POST: Teams/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(string id)
-        {
-            Team team = db.Teams.Find(id);
-            db.Teams.Remove(team);
-            db.SaveChanges();
-            return RedirectToAction("Index");
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                db.Dispose();
-            }
-            base.Dispose(disposing);
         }
     }
 }
